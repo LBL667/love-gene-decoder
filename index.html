@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<title>恋爱基因解码</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#131020;
+  --bg2:#171326;
+  --card:#1E1930;
+  --card2:#251F3B;
+  --line:rgba(222,196,148,.30);
+  --line-soft:rgba(222,196,148,.14);
+  --gold:#D9BC8C;
+  --gold-hi:#EDD7A8;
+  --ink:#F1EADB;
+  --ink2:#B3AA99;
+  --dim:#7D7490;
+  --rose:#C87B8A;
+  --serif:'Noto Serif SC','Songti SC','STSong','SimSun',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','HarmonyOS Sans SC','MiSans','Microsoft YaHei',sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--sans)}
+body{min-height:100dvh;overflow-x:hidden;touch-action:manipulation;-webkit-font-smoothing:antialiased}
+#noise{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.star{position:absolute;border-radius:50%;background:#E9DCC0;animation:twinkle var(--d,5s) ease-in-out var(--dl,0s) infinite alternate}
+@keyframes twinkle{from{opacity:var(--o1,.12)}to{opacity:var(--o2,.55)}}
+#stage{position:relative;z-index:2;max-width:480px;margin:0 auto;min-height:100dvh;
+  padding:calc(env(safe-area-inset-top,0px) + 24px) 24px calc(env(safe-area-inset-bottom,0px) + 28px)}
+.screen{animation:enter .5s var(--ease) both}
+@keyframes enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.kicker{font-family:var(--serif);color:var(--dim);font-size:12px;letter-spacing:.35em}
+.label{font-size:11px;letter-spacing:.3em;color:var(--gold);font-family:var(--serif)}
+.hairline{width:34px;height:1px;background:var(--line);margin:14px 0}
+button{font-family:var(--sans);background:none;border:none;color:inherit;cursor:pointer}
+.btn{display:block;width:100%;padding:16px;border:1px solid var(--gold);border-radius:2px;
+  color:var(--gold-hi);font-size:15px;letter-spacing:.42em;text-indent:.42em;background:transparent;
+  transition:background .12s ease,color .12s ease,transform .12s ease}
+.btn:active{background:var(--gold);color:#171226;transform:scale(.985)}
+.btn.ghost{border-color:var(--line-soft);color:var(--ink2);letter-spacing:.3em}
+.link{color:var(--dim);font-size:12px;letter-spacing:.2em;text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px}
+.link:active{color:var(--gold);border-color:var(--line)}
+/* ---------- 封面 ---------- */
+.cover{min-height:calc(100dvh - 52px);display:flex;flex-direction:column;justify-content:center;text-align:center}
+.cover .kicker{margin-bottom:26px}
+.cover h1{font-family:var(--serif);font-weight:900;font-size:clamp(38px,11vw,46px);letter-spacing:.14em;text-indent:.14em;line-height:1.28}
+.cover .sub{margin-top:18px;color:var(--ink2);font-size:14px;letter-spacing:.12em;line-height:2}
+.cover .meta{margin-top:12px;color:var(--dim);font-size:11px;letter-spacing:.22em}
+.deck{position:relative;height:210px;margin:34px 0 40px}
+.deck .card3d{position:absolute;left:50%;top:0;width:132px;height:200px;margin-left:-66px}
+.deck .p1{transform:rotate(-10deg) translateX(-34px)}
+.deck .p2{transform:rotate(0deg) translateY(-8px);z-index:2}
+.deck .p3{transform:rotate(10deg) translateX(34px)}
+.cover .actions{display:flex;flex-direction:column;gap:14px}
+/* ---------- 塔罗牌 ---------- */
+.tcard{width:100%;height:100%;position:relative}
+.tframe{position:absolute;inset:0;border:1px solid var(--line);border-radius:8px;background:linear-gradient(0deg,var(--card),var(--card));overflow:hidden}
+.tframe::before{content:"";position:absolute;inset:5px;border:1px solid var(--line-soft);border-radius:5px}
+.tframe svg{position:absolute;inset:0;width:100%;height:100%}
+/* ---------- 表单 ---------- */
+.setup-step{margin-top:8vh;text-align:left}
+.setup-step .kicker{display:block;margin-bottom:10px}
+.setup-step h2{font-family:var(--serif);font-weight:700;font-size:26px;letter-spacing:.1em;margin-bottom:8px}
+.setup-step .hint{color:var(--dim);font-size:13px;line-height:1.9;margin-bottom:26px}
+input[type=text]{width:100%;padding:16px 14px;background:rgba(255,255,255,.025);border:1px solid var(--line);
+  border-radius:2px;color:var(--ink);font-size:16px;letter-spacing:.1em;outline:none;caret-color:var(--gold)}
+input[type=text]:focus{border-color:var(--gold)}
+.status-grid{display:flex;flex-direction:column;gap:14px}
+.status-item{display:flex;align-items:baseline;gap:14px;padding:18px 18px;border:1px solid var(--line-soft);border-radius:2px;
+  color:var(--ink);transition:border-color .12s ease,background .12s ease;text-align:left}
+.status-item .nm{font-family:var(--serif);font-size:18px;letter-spacing:.14em}
+.status-item .de{color:var(--dim);font-size:12px;letter-spacing:.05em}
+.status-item:active{border-color:var(--gold);background:rgba(217,188,140,.06)}
+/* ---------- 抽牌 ---------- */
+.fan{position:relative;height:250px;margin:5vh 0 30px}
+.fan .card3d{position:absolute;left:50%;top:10px;width:118px;height:180px;margin-left:-59px;
+  transition:opacity .45s ease,transform .55s var(--ease)}
+.fan.fade .card3d{opacity:0;pointer-events:none}
+.fan.fade .card3d.chosen{opacity:1;transform:translateY(-10px) rotate(0deg) scale(1.06)!important}
+.fan-tip{text-align:center;color:var(--dim);font-size:12px;letter-spacing:.3em}
+.flip-scene{width:168px;height:256px;margin:4vh auto 0;perspective:1100px}
+.flip-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .85s var(--ease)}
+.flip-scene.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.flip-face.front{transform:rotateY(180deg)}
+.card-front{position:relative;width:100%;height:100%;border:1px solid var(--gold);border-radius:8px;background:var(--card2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+.card-front::before{content:"";position:absolute;inset:6px;border:1px solid var(--line-soft);border-radius:5px}
+.card-front .rn{font-family:var(--serif);font-size:14px;color:var(--gold);letter-spacing:.4em;text-indent:.4em}
+.card-front .nm{font-family:var(--serif);font-weight:900;font-size:30px;letter-spacing:.24em;text-indent:.24em}
+.card-front .th{font-family:var(--serif);font-size:12px;color:var(--ink2);letter-spacing:.5em;text-indent:.5em}
+.card-front .dot{width:5px;height:5px;transform:rotate(45deg);background:var(--gold);margin-top:6px}
+.card-reveal{margin-top:30px;animation:enter .6s var(--ease) both}
+.card-reveal .txt{color:var(--ink2);font-size:14.5px;line-height:2.15;letter-spacing:.04em;margin:16px 0 30px;font-family:var(--serif)}
+/* ---------- 章引言 ---------- */
+.chintro{min-height:calc(100dvh - 52px);display:flex;flex-direction:column;justify-content:center}
+.chintro .big{font-family:var(--serif);font-size:96px;font-weight:400;color:transparent;-webkit-text-stroke:1px var(--line);line-height:1;margin:6px 0 2px}
+.chintro h2{font-family:var(--serif);font-weight:700;font-size:28px;letter-spacing:.2em;margin:14px 0 0}
+.chintro .lead{margin-top:20px;font-family:var(--serif);color:var(--ink2);font-size:15px;line-height:2.2;letter-spacing:.05em}
+.chintro .stline{margin-top:16px;font-family:var(--serif);color:var(--gold);font-size:13.5px;line-height:2;letter-spacing:.06em}
+.chintro .meta{margin-top:26px;color:var(--dim);font-size:11px;letter-spacing:.3em}
+.chintro .btn{margin-top:34px}
+/* ---------- 答题 ---------- */
+.qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.qhead .ch{font-family:var(--serif);color:var(--gold);font-size:12px;letter-spacing:.3em}
+.qhead .ct{color:var(--dim);font-size:11px;letter-spacing:.2em}
+.pbar{height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;margin-bottom:6px}
+.pbar i{display:block;height:100%;background:var(--gold);transition:width .4s var(--ease)}
+.chdots{display:flex;gap:8px;justify-content:center;margin:10px 0 26px}
+.chdots i{width:6px;height:6px;transform:rotate(45deg);border:1px solid var(--line);transition:background .3s}
+.chdots i.done{background:var(--gold);border-color:var(--gold)}
+.chdots i.cur{border-color:var(--gold);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(217,188,140,.0)}50%{box-shadow:0 0 0 4px rgba(217,188,140,.12)}}
+.qcard{border:1px solid var(--line-soft);border-radius:2px;background:rgba(255,255,255,.015);padding:24px 20px;position:relative}
+.qcard::before{content:"";position:absolute;inset:5px;border:1px solid rgba(222,196,148,.08);border-radius:1px;pointer-events:none}
+.qscene{font-family:var(--serif);color:var(--dim);font-size:12.5px;letter-spacing:.12em;line-height:1.9}
+.qtext{font-family:var(--serif);color:var(--ink);font-size:clamp(19px,5.4vw,22px);font-weight:600;line-height:1.85;letter-spacing:.03em;margin-top:12px}
+.opts{display:flex;flex-direction:column;gap:12px;margin-top:24px}
+.opt{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;padding:16px 16px;
+  border:1px solid var(--line-soft);border-radius:2px;background:rgba(255,255,255,.015);
+  transition:border-color .12s ease,background .12s ease,transform .12s ease;animation:enter .45s var(--ease) both}
+.opt:active{transform:scale(.985)}
+.opt .idx{font-family:var(--serif);color:var(--dim);font-size:13px;letter-spacing:.1em;padding-top:2px;transition:color .12s}
+.opt .tx{color:var(--ink2);font-size:14.5px;line-height:1.85;letter-spacing:.02em;transition:color .12s}
+.opt.sel{border-color:var(--gold);background:rgba(217,188,140,.08)}
+.opt.sel .idx{color:var(--gold-hi)}
+.opt.sel .tx{color:var(--ink)}
+.qfoot{display:flex;justify-content:space-between;align-items:center;margin-top:22px}
+/* ---------- 计算过场 ---------- */
+.calc{min-height:calc(100dvh - 52px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.calc .minifan{display:flex;justify-content:center;margin-bottom:40px}
+.calc .minifan .card3d{width:74px;height:112px;transition:transform .5s var(--ease)}
+.calc .line{font-family:var(--serif);color:var(--ink2);font-size:14px;letter-spacing:.3em;min-height:24px;animation:enter .5s var(--ease) both}
+/* ---------- 结果 ---------- */
+.r-hero{text-align:center;padding:12px 0 6px}
+.r-hero .kicker{display:block;margin-bottom:16px}
+.r-hero .arche{font-family:var(--serif);font-weight:900;font-size:clamp(30px,8.6vw,38px);letter-spacing:.1em;line-height:1.5}
+.r-hero .arche::after{content:"";display:block;width:44px;height:2px;background:var(--gold);margin:18px auto 0}
+.r-hero .pair{margin-top:16px;color:var(--ink2);font-size:14px;letter-spacing:.24em;font-family:var(--serif)}
+.r-chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px}
+.chip{font-size:11px;letter-spacing:.18em;color:var(--ink2);border:1px solid var(--line-soft);border-radius:2px;padding:6px 12px}
+.chip b{color:var(--gold);font-weight:400}
+.lie-note{margin-top:22px;border:1px dashed var(--line);border-radius:2px;padding:14px 16px;color:var(--ink2);font-size:12.5px;line-height:2;letter-spacing:.04em}
+.r-sec{margin-top:38px}
+.r-sec .head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.r-sec .head .tt{font-family:var(--serif);font-weight:700;font-size:17px;letter-spacing:.2em}
+.r-sec .head .en{font-size:10px;letter-spacing:.32em;color:var(--dim)}
+.chart-card{border:1px solid var(--line-soft);border-radius:2px;background:rgba(255,255,255,.015);padding:18px 12px 8px}
+.legend{display:flex;justify-content:center;gap:18px;margin:2px 0 8px}
+.legend span{font-size:11px;color:var(--ink2);letter-spacing:.14em;display:flex;align-items:center;gap:6px}
+.legend i{width:8px;height:8px;transform:rotate(45deg)}
+.r-para{margin-top:14px}
+.r-para .lb{font-family:var(--serif);color:var(--gold);font-size:12px;letter-spacing:.4em;margin-bottom:8px}
+.r-para p{color:var(--ink2);font-size:14.5px;line-height:2.1;letter-spacing:.03em}
+.combo-name{font-family:var(--serif);font-weight:700;color:var(--ink);font-size:19px;letter-spacing:.14em;margin-bottom:10px}
+.combo-name em{font-style:normal;color:var(--gold);font-size:12px;letter-spacing:.3em;display:block;margin-top:6px}
+.eggs{display:flex;flex-direction:column;gap:22px}
+.egg .row1{display:flex;justify-content:space-between;align-items:baseline}
+.egg .nm{font-family:var(--serif);font-size:14px;letter-spacing:.2em}
+.egg .v{font-family:var(--serif);font-size:30px;color:var(--gold-hi)}
+.egg .v small{font-size:12px;color:var(--dim);letter-spacing:.1em;margin-left:4px}
+.egg .track{height:2px;background:rgba(255,255,255,.07);margin-top:12px;position:relative;border-radius:1px}
+.egg .track i{position:absolute;left:0;top:0;height:100%;background:var(--gold);width:0;transition:width 1.1s var(--ease)}
+.egg .tier{margin-top:10px;color:var(--ink2);font-size:13px;letter-spacing:.08em;font-family:var(--serif)}
+.egg .tier b{color:var(--gold);font-weight:400}
+.egg-note{color:var(--dim);font-size:11px;letter-spacing:.16em;margin-top:16px}
+.oracle{border:1px solid var(--line);border-radius:2px;padding:24px 20px;background:rgba(217,188,140,.03);position:relative}
+.oracle::before{content:"";position:absolute;inset:5px;border:1px solid var(--line-soft);pointer-events:none;border-radius:1px}
+.oracle .onm{font-family:var(--serif);font-weight:700;font-size:18px;letter-spacing:.2em;text-align:center}
+.oracle .otx{margin-top:16px;font-family:var(--serif);color:var(--ink2);font-size:14px;line-height:2.15;letter-spacing:.04em}
+.oracle .ocls{margin-top:14px;font-family:var(--serif);color:var(--gold);font-size:13.5px;line-height:2;letter-spacing:.04em}
+.ethic{margin-top:34px;color:var(--dim);font-size:11.5px;line-height:2;letter-spacing:.06em;text-align:center}
+.r-actions{display:flex;flex-direction:column;gap:14px;margin-top:26px}
+.share-hint{text-align:center;color:var(--dim);font-size:11.5px;letter-spacing:.2em;margin-top:22px}
+.wide-note{display:none}
+@media (min-width:520px){
+  body::before{content:"";position:fixed;inset:0;background:#0D0B16;z-index:-1}
+  .wide-note{display:block;position:fixed;left:50%;transform:translateX(-50%);bottom:10px;color:#544D66;font-size:11px;letter-spacing:.2em;z-index:3}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div id="noise"></div>
+<div id="stage"></div>
+<div class="wide-note">本测评为手机端体验，建议在手机上打开</div>
+<noscript>本测评需要启用 JavaScript。</noscript>
+<script>
+"use strict";
+/* ================= 数据 ================= */
+const CARDS=[
+ {id:"lovers",rn:"VI",name:"恋人",theme:"选择",open:"你抽到了恋人。这张牌不代表你马上会恋爱，它代表你正站在一个选择面前。你这次测评里的每一次犹豫和笃定，都被这张牌记下了。它给你的提示只有一句，真正的问题从来不是选谁，而是你敢不敢让对的人看见真实的你。",close:"恋人牌合上时留下一句话，选择本身没有对错，选完不回头才是。"},
+ {id:"sun",rn:"XIX",name:"太阳",theme:"坦荡",open:"你抽到了太阳。它照亮的从来不是别人，是你习惯藏起来的那部分。接下来的四十多个场景里，你不需要扮演任何人，答案越诚实，牌面越亮。",close:"太阳牌给你的批注是，你藏起来的那部分自己，恰好最值得被喜欢。"},
+ {id:"moon",rn:"XVIII",name:"月亮",theme:"惑",open:"你抽到了月亮。它管的不安、猜测和深夜的胡思乱想，都将在这一程现形。别急着给出你以为的标准答案，月亮想看的是你不加修饰的反应。",close:"月亮退场前留了句话，让你睡不着的从来不是月亮，是你不肯问出口的那个问题。"},
+ {id:"star",rn:"XVII",name:"星星",theme:"愈",open:"你抽到了星星。它总在高塔的雷雨之后出现，负责把你打碎的部分重新拼好。这一程有些题目会扎心，扎心说明答对了地方。",close:"星星给你的批注是，先把自己拼好，再谈把谁放进未来。"},
+ {id:"tower",rn:"XVI",name:"高塔",theme:"破",open:"你抽到了高塔，塔罗里最烈的一张。雷落下来的时候，假的东西会全部烧掉。你会在这段牌局里撞见自己最狼狈的反应，别怕，高塔拆掉之后，地基才看得见。",close:"高塔倒下后留了句话，经得起雷的关系才轮得到你认真。"},
+ {id:"chariot",rn:"VII",name:"战车",theme:"冲",open:"你抽到了战车。它代表冲劲、掌控和认准了就不松手。注意，牌局里有些选项看起来是勇，其实是逃，战车会替你分清。",close:"战车停下时留了句话，方向比速度重要，对的人才配得上你的冲。"},
+ {id:"magician",rn:"I",name:"魔术师",theme:"变",open:"你抽到了魔术师。他桌上摆着四样元素，代表你手里其实什么都有，只是习惯性不用。这一程他会盯着你看，看你怎么把心动变成行动。",close:"魔术师收起道具时说，你缺的从来不是能力，是允许自己开始。"},
+ {id:"hermit",rn:"IX",name:"隐士",theme:"静",open:"你抽到了隐士。他提着灯，照的不是远方，是你自己。这段牌局里你大概率会选那些安静克制的选项，灯照见的地方，答案比想象中清楚。",close:"隐士的灯灭之前留了句话，一个人先把日子过明白，两个人才能把日子过好。"},
+ {id:"wheel",rn:"X",name:"命运之轮",theme:"转",open:"你抽到了命运之轮。轮子转起来的时候，没有一局是白局的。你此刻的暧昧、分手或心动，都是轮子上刚好经过的一格。这一程测的，是轮盘转动时你抓不抓得住自己。",close:"轮盘停稳时留了句话，运势会转，但你的恋爱人格一直在你手里。"},
+ {id:"fool",rn:"0",name:"愚人",theme:"勇",open:"你抽到了愚人，编号零，站在起点的人。他不管前面是悬崖还是花路，先迈了步再说。这一程你没有标准答案护体，凭第一反应走，愚人最不怕的就是走错。",close:"愚人走到终点时说，恋爱里没有白走的路，只有不走的人。"}
+];
+const CHAPTERS=[
+ {num:"I",card:"恋人牌",title:"暧昧开局",intro:"恋人牌上两个人赤身相见，意思是暧昧里的一切都还没被关系定义。这一章的题目没有对错，只有你此刻最真实的反射。",st:{single:"还没遇到也没关系，把想象里的那个人放进题目，答案照样作数。",flirt:"把最近让你失眠的那个人放进题目里，答案会更准。",dating:"往回想一想你们刚认识的时候，再作答。"}},
+ {num:"II",card:"太阳牌",title:"热恋升温",intro:"太阳牌坦荡明亮，一切摊在光下。这一章测你把多少真实的自己放进了关系。",st:{single:"这一章假设你正在热恋，用你最期待的样子去选。",flirt:"有些场景还没发生，凭直觉选你会怎么做。",dating:"对照你们现在的样子选，别选你以为的理想答案。"}},
+ {num:"III",card:"高塔牌",title:"冲突现场",intro:"高塔是塔罗里最烈的一张，雷落下的瞬间假的东西全部烧掉。这一章测你在关系里最狼狈也最真实的样子。",st:{single:"冲突还没上演过，选那个让你最熟悉的反应。",flirt:"猜猜真吵起来你会是什么样，直觉比客套准。",dating:"想想上次真实的争吵，你当时的反应说了实话。"}},
+ {num:"IV",card:"月亮牌",title:"异地异动",intro:"月亮管的是不安与想象。距离拉开的不是路程，是你心里那台放大器的音量。",st:{single:"异地还没体会过，选你直觉里扛不住或扛得住的那个。",flirt:"想象你们隔着一座城，你会怎么接这些时刻。",dating:"想想异动期的你们，答案可能你已经知道了。"}},
+ {num:"V",card:"星星牌",title:"承诺关口",intro:"星星在高塔之后出现，讲雷雨过后的希望。这一章测你敢不敢把这段关系放进未来。",st:{single:"未来这一章，选你真正想要的那个版本。",flirt:"敢不敢把这个人放进未来，题目会替你说出口。",dating:"别想当然，这章的答案经常和恋爱时长无关。"}}
+];
+/* 题库：40 计分 + 2 测谎。tag：SEC/ANX/AVO/FEA/ERO/LUD/STO/PRG/MAN/AGA/LIE/- */
+const Q=(ch,scene,text,opts)=>({ch,scene,text,opts});
+const QUESTIONS=[
+/* 第一章 暧昧开局 */
+Q(0,"周六下午，消息发出去的第三个小时","你给对方发了一大段消息，三小时后只收到一个哈哈哈。",[["直接问一句在忙吗，等他忙完接着聊，问完就放下手机","SEC"],["反复翻聊天记录，复盘是不是自己哪句话说得不对","ANX"],["对方回什么就淡淡接一句，心里的期待值已经降到了零","AVO"],["一边想找他把话说清楚，一边又觉得算了，他肯定嫌我烦","FEA"]]),
+Q(0,"社团迎新晚会结束的那个晚上","社团活动上对方对你很热情，活动结束后却再没找过你。",[["下次活动照常打招呼，热情与否不急着下结论","SEC"],["开始怀疑那天是不是自己表现太差，忍不住找共同朋友打听","ANX"],["本来也没打算继续，正好省事，谁主动谁被动无所谓","AVO"],["特别想再约，又怕显得太主动被看穿，一条消息来回编辑了七遍","FEA"]]),
+Q(0,"手机震动的那个中午","对方第一次约你单独吃饭，你的第一反应是",[["挺好，正好多了解一下，答应得干脆","SEC"],["表面淡定，脑子里已经在担心冷场、吃相、该坐哪一边","ANX"],["先想的是这会不会占用太多自己的时间，要不要找个理由缓一缓","AVO"],["又期待又紧张，甚至想找个借口推掉，怕真去了表现糟糕","FEA"]]),
+Q(0,"宿舍夜谈，室友忽然说了一句","朋友说，你看对方的眼神完全藏不住。你的第一反应",[["藏不住就藏不住，喜欢不丢人","SEC"],["立刻慌了，追问都有谁看出来了，会不会传到对方耳朵里","ANX"],["否认三连，然后自然地转移话题，不让任何人看出破绽","AVO"],["心里一紧，开始担心对方知道了会不会从此疏远","FEA"]]),
+Q(0,"刚认识两周，心跳有点不听话","你发现自己对一个刚认识两周的人上头了，你的行动是",[["上头就冲，心动这种事藏不住也不该藏","ERO"],["先试探拉扯，暧昧的推拉比确定关系有意思","LUD"],["压着，先当朋友处，看清楚这个人再说","STO"],["冷静盘一盘，性格、作息、消费观跟自己合不合","PRG"]]),
+Q(0,"奶茶店，朋友把问题抛给你","朋友问你理想型是什么样的，你的回答更接近",[["看对眼就行，感觉来了其他条件都是虚的","ERO"],["有一张明确的清单，责任感、理财观、家庭情况都在上面","PRG"],["能像朋友一样聊到一块去，比什么硬条件都强","STO"],["对我好的人，最好是需要我照顾的那种","AGA"]]),
+Q(0,"深夜刷到他的朋友圈","对方朋友圈设了三天可见，你只能刷到最新一条，你会",[["直接在评论区互动，可见不可见无所谓，看得见人就够了","ERO"],["假装没在意，转头从共同好友那里把动态打听个遍","LUD"],["记下来，这算一个信息点，以后慢慢验证他是什么人","PRG"],["有点不舒服，会想那三天里他发了什么，又为什么不让看","MAN"]]),
+Q(0,"第一次约会的前一夜","第一次约会，你更在意的是",[["氛围和心动感，灯光、距离、对方的味道都算数","ERO"],["这次见面有没有让你对两人的未来多一分判断","PRG"],["对方开不开心，自己吃得不尽兴但他吃得开心就值","AGA"],["过程好不好玩，能不能留下几个以后互相调侃的梗","LUD"]]),
+/* 第二章 热恋升温 */
+Q(1,"在一起的第一周，屏幕亮起","对方问晚上想不想视频。",[["想啊，约好时间就等，视频里聊得很放松","SEC"],["秒答应，挂了视频开始想他刚才的语气是不是没之前热情","ANX"],["能不打就不打，打字挺好，视频总有点尴尬","AVO"],["想打又怕自己无聊冷场，回了句看情况吧，然后整晚盯着手机","FEA"]]),
+Q(1,"普通的周二晚上，毫无预兆","对方第一次说想你了，你的反应",[["我也是，接着自然往下聊，心里踏实","SEC"],["开心到截图，反复想他是不是真心的，会不会对别人也这么说","ANX"],["心里其实有点开心，回一个哦，不想表现得太在意","AVO"],["开心三秒，紧接着想这是不是客套，该回多少度的热情才不算过头","FEA"]]),
+Q(1,"夜聊复盘，你认真想了想","恋爱后你最近一次开心，是因为",[["约好了周末去哪，两个人的计划有了着落","SEC"],["他主动发来一大段消息，我确认了他还在乎","ANX"],["他没找我的一整个下午，终于能打自己的游戏","AVO"],["他夸我了，但总觉得下次见面他可能就变卦","FEA"]]),
+Q(1,"室友的八卦雷达突然对准你","朋友问起你们在一起后的状态，你最可能说",[["挺稳的，有商有量，聊得来","SEC"],["挺好，就是有时候不太确定他怎么想","ANX"],["就那样吧，各自该干嘛干嘛，感情不必天天挂嘴边","AVO"],["时好时坏，好的时候很好，坏的时候觉得自己一无是处","FEA"]]),
+Q(1,"第三个月，新鲜感刚过半","在一起三个月，你心里的真实状态是",[["比刚认识时放松多了，像多了一个能说废话的人","STO"],["每天都想确认他还喜欢我，一天不确认就难受","MAN"],["他最近备考很辛苦，想多替他分担一点","AGA"],["越看越顺眼，每次见面还是会心跳","ERO"]]),
+Q(1,"散步时他先开了口","对方提起了他的前任，你的反应",[["无所谓啊，谁没个过去，接着聊别的","LUD"],["在心里默默记下这个信息，它影响我对这段关系的判断","PRG"],["听完就过了，人往前看，过去的事不重要","STO"],["瞬间不舒服，之后好几天都在想他们相处的细节","MAN"]]),
+Q(1,"深夜，你翻着聊天记录","描述你们现在聊天最典型的样子",[["睡前的语音和说不完的情话","ERO"],["我的消息总比他多，他随口提过的小事我都记得","AGA"],["互相斗嘴抛梗，谁先认真谁就输","LUD"],["没什么火热的字眼，但有事第一个想到对方","STO"]]),
+Q(1,"工作日的下午，等回复的间隙","对方最近很忙，回消息变慢，你",[["有点烦躁，忍不住连发几条问他在干嘛","MAN"],["正常，各自忙各自的，感情要为现实让路","PRG"],["等忙完见面再撒娇补回来，见面永远最重要","ERO"],["少打扰他，悄悄点了杯咖啡附一句加油","AGA"]]),
+/* 第三章 冲突现场 */
+Q(2,"冷战第二天，房间安静得过分","你们为一件小事冷战，第二天对方也没主动找你。",[["冷战解决不了问题，晚上直接打电话把话说开","SEC"],["一整天都在刷手机等消息，学习工作全不在状态","ANX"],["正好清净，各过各的，气和了再说","AVO"],["想道歉又怕越描越黑，想删好友又舍不得，一晚上解锁了五十次手机","FEA"]]),
+Q(2,"吵架最凶的那一句落地之后","对方说了一句挺伤人的话。",[["先把情绪放一放，事后再告诉他这句话让我不舒服","SEC"],["那句话在脑子里单曲循环，开始怀疑整段感情是不是假的","ANX"],["不接话，心里默默扣分，打算慢慢撤","AVO"],["又想大吵一架发泄，又想马上道歉哄他消气，两个念头打架","FEA"]]),
+Q(2,"他第一次提出这样的要求","对方提了一个你做不到的要求，比如每天必须说早安晚安。",[["直说我做不到每天打卡，但我在意你的方式不止一种","SEC"],["硬着头皮答应，从此定闹钟执行，生怕漏一天","ANX"],["嘴上答应，心里觉得这要求很荒谬，三天后就忘了执行","AVO"],["当场答应，转头就开始焦虑，做不到怎么办，不答应他生气又怎么办","FEA"]]),
+Q(2,"和好一周后，你睡不着的夜里","吵完架和好一周后，你更记得的是",[["吵的那件事本身，说开了就翻篇","SEC"],["他吵架时说的狠话，和好了也总想起","ANX"],["和好可以，但有些话我以后不会再对他讲了","AVO"],["都记得，和好那天有多甜，吵架那天就有多慌","FEA"]]),
+Q(2,"第一次吵架的当晚","你们第一次真正吵架后的那个晚上，你",[["难受但不极端，想着气头过了总会和好，情侣都这样","STO"],["有点上头，甚至有点想看他为我着急的样子","LUD"],["情绪像过山车，一会儿想分手，一会儿想他是不是也在难过","MAN"],["明明是他的问题，但我先低头，他开心比争对错重要","AGA"]]),
+Q(2,"宿舍楼下的闲聊","朋友评价你对象，长得也就一般啊，你会",[["嗯？他明明越看越好看，是你不懂","ERO"],["长相本来就是次要项，我看的又不是脸","PRG"],["笑而不语，好不好看我说了不算，处得舒坦才是真的","STO"],["跟着起哄说对啊我也觉得一般，然后转头把对话学给对象听","LUD"]]),
+Q(2,"他的手机屏幕亮着，你瞥见了头像","伴侣手机里有个聊得很热的异性好友，你的第一反应",[["完全不在意，我从来不吃醋","LIE"],["有点在意，但选择信任他","-"],["找个机会直接聊开","-"],["心里翻江倒海，忍不住想查聊天记录","-"]]),
+Q(2,"旅行计划刚提上日程","你们计划第一次一起旅行，你最先做的事是",[["确认行程里每件事都两个人一起，不接受各玩各的","MAN"],["先看他请假方不方便，日期迁就他的时间","AGA"],["做预算表和攻略，把花销和路线先摆清楚","PRG"],["先想和他一起看海的画面，攻略以后再说","ERO"]]),
+Q(2,"那天你借他手机查东西","对方有个无伤大雅的小秘密没告诉你，被你发现了，你",[["有意思，先按住不说，找个机会逗他","LUD"],["谁还没点自己的空间，他想说自然会说","STO"],["嘴上说没事，心里把这件事反复咀嚼了三天","MAN"],["会评估这个秘密的性质，判断它有没有触碰原则","PRG"]]),
+/* 第四章 异地异动 */
+Q(3,"交流的第三周，回复越来越慢","对方去外校交流三个月，最近回消息越来越慢。",[["估计是忙，有空直接问，问完该干嘛干嘛","SEC"],["脑补了一整部连续剧，从新朋友圈想到新欢","ANX"],["慢就慢吧，正好我也懒得维持，顺其自然","AVO"],["每天点开对话框又退出，想问又怕问出不想听的答案","FEA"]]),
+Q(3,"周五晚上的视频邀约被推掉","周末对方说想自己待着，不视频了。",[["行，那你休息，周一聊，不觉得被拒绝","SEC"],["他是不是不想理我了，翻三天的聊天记录找自己说错的话","ANX"],["求之不得，正好安排自己的事","AVO"],["嘴上说好，心里空得慌，开始琢磨感情是不是要凉了","FEA"]]),
+Q(3,"同学聚会听来的一句话","你听说对方和一位异性同学走得很近。",[["先问清楚再说，正常来往没什么","SEC"],["半夜睡不着，反复翻他的社交动态找蛛丝马迹","ANX"],["不问，问了显得我在乎，大不了就当提前结束","AVO"],["一边告诉自己别多想，一边已经把分手预案想好了","FEA"]]),
+Q(3,"车票开售的凌晨","异地后的第一次见面，提前一个月你会",[["订票订餐厅，行程安排得明明白白，期待但不失眠","SEC"],["兴奋又害怕，怕见面发现自己变了，怕他不满意现在的我","ANX"],["想着到时候再说，行程订太细反而有压力","AVO"],["期待了一整月，见面前一晚开始慌，想想要不这次别见了","FEA"]]),
+Q(3,"异地恋的第一百天","异地恋最难熬的瞬间，你的真实感受是",[["想他想到睡不着，身体和心都很诚实地需要他","ERO"],["他那边降温了，我又不在场，只能反复提醒他加衣服","AGA"],["其实还好，各有各的生活，距离反而多一点自由","LUD"],["看到他朋友圈里和别人的合照就难受，距离让我极度没有安全感","MAN"]]),
+Q(3,"租房软件停在城市选择页","聊到毕业后在哪个城市安家，你的第一反应",[["这题必须认真谈，城市直接决定工作机会和生活成本","PRG"],["去哪都行，两个人在哪，家就在哪","STO"],["想到能在同一个城市每天见面，光想想就心动","ERO"],["他去哪我去哪，他的前程比我重要","AGA"]]),
+Q(3,"火锅店里，朋友忽然认真起来","朋友评价恋爱里的你，最可能说",[["我从来不发脾气，情绪永远稳定","LIE"],["有脾气但不记仇，睡一觉就好","-"],["容易上头，但也特别好哄","-"],["情绪起伏比较大，爱得用力","-"]]),
+Q(3,"周五晚上的突然来电","对方说这周末想和朋友出去玩，不含你，你",[["心里不舒服，会追问都有谁，有没有异性","MAN"],["好啊正好，我也约我的局，回来交换八卦","LUD"],["合理，社交是刚需，支持，但希望有来有往","PRG"],["挺好，恋爱又不是连体婴，各自有朋友圈才健康","STO"]]),
+Q(3,"凌晨一点，眼睛已经睁不开","你们约好每晚睡前通一次电话，今晚你累到睁不开眼，你",[["照打，他在等我，不能让他失望","AGA"],["打，听到他的声音这一天才算结束，累也值","ERO"],["发消息说明情况，让他早点睡，明晚补上","STO"],["说明情况改成文字简报，休息好才能可持续，没必要硬撑仪式","PRG"]]),
+/* 第五章 承诺关口 */
+Q(4,"恋爱半年，话题第一次拐到未来","对方第一次聊到毕业规划，问你在不在他的规划里。",[["认真聊，两个人的规划本该摆在桌面上对一对","SEC"],["嘴上说随便你安排，回家想了一晚上他每个字的意思","ANX"],["把话题岔开，规划聊早了都是空头支票","AVO"],["很想成为他规划的一部分，又怕自己到时候掉队拖累他","FEA"]]),
+Q(4,"他的语气前所未有的认真","对方说想带你去见他的朋友和家人。",[["好啊，正好看看彼此的世界能不能接得上","SEC"],["紧张到失眠，反复准备话术，怕哪句话给他丢分","ANX"],["下意识往后推，见了家长这事就不好收场了","AVO"],["又想去又怕去，怕他家里人不喜欢我，也怕关系走得太快","FEA"]]),
+Q(4,"失眠的深夜，你试着往远处想","给这段感情画一条通往未来的线，你脑中冒出的第一个画面是",[["各自把事情做好，毕业、工作，一步一步来","SEC"],["画面很多，但每一个后面都跟着一个问题，万一呢","ANX"],["画面是模糊的，不敢想太远，先过好眼下这一段","AVO"],["想到一个特别美的画面，但马上补一句，大概轮不到我","FEA"]]),
+Q(4,"日历翻到纪念日那一页","你们的纪念日快到了，你打算",[["提前订好餐厅，准备一份他念叨了很久的东西","SEC"],["纠结很久送什么，怕太贵重显得刻意，怕太随意显得不在乎","ANX"],["当天说一句就行，仪式感这种东西是一种负担","AVO"],["准备了很久的惊喜，到跟前又想算了，万一他觉得矫情","FEA"]]),
+Q(4,"和朋友的深夜话题","你对暧昧和确定关系之间的那段灰色地带，态度是",[["我最留恋的就是这段，推拉试探比确定关系好玩","LUD"],["极度想快点确定，不确定性让我焦虑到抓心挠肝","MAN"],["无所谓名分，先默默对他好，他舒服最重要","AGA"],["灰色地带是筛选期，观察到位就该做决定，不养鱼","PRG"]]),
+Q(4,"如果给感情找一种味道","你们的感情现在像",[["汽水，气泡一直往上冒，喝一口就上头","ERO"],["温水泡的茶，不刺激，但越品越有回甘","STO"],["手冲咖啡，配比讲究，口味和价格心里都有数","PRG"],["鸡尾酒，好喝上头快，后劲这事说不准","LUD"]]),
+Q(4,"刷到官宣九宫格的那一刻","朋友圈里有人晒出高甜官宣照，你的第一反应",[["心里一紧，我们什么时候也能官宣，他到底怎么规划的","MAN"],["真好，然后点开对话框，关心我对象今天过得好不好","AGA"],["点个赞，关掉，继续干自己的事","STO"],["突然想他了，立刻给他发一句我想你","ERO"]]),
+Q(4,"毕业倒计时两百天","五年后你们最可能的画面，你敢想的那个版本是",[["在同一个城市有稳定工作，存款和计划都在正轨上","PRG"],["说不好，五年太长，先把今年过明白，爱情不一定需要剧本","LUD"],["他还是我一看见就想亲的人，这一点从没变过","ERO"],["不敢想，怕想到的都不是他要给的，也怕我给的不是他想要的","MAN"]])
+];
+const ATT_INFO={SEC:{cn:"安全型",rate:20},ANX:{cn:"焦虑型",rate:20},AVO:{cn:"回避型",rate:20},FEA:{cn:"恐惧型",rate:20}};
+const STYLE_INFO={ERO:{cn:"激情型",rate:15},LUD:{cn:"游戏型",rate:13},STO:{cn:"友伴型",rate:13},PRG:{cn:"现实型",rate:15},MAN:{cn:"占有型",rate:12},AGA:{cn:"奉献型",rate:12}};
+const ATT_TEXT={
+SEC:{lead:"你在关系里最稀缺的能力是不内耗。",mech:"消息没回就先忙自己的，吵架了把话摊开说，被拒绝了也伤得到但不至于塌方。",high:"你给关系托底。对方情绪再乱，你都是那个能稳住场子的人。",warn:"把对方的平静误读成平淡，偶尔把没关系脱口而出，但其实有事。",tips:"练习把需求说得更具体，你的底子足够稳，说出口只会让关系更好。"},
+ANX:{lead:"你对爱的感知力是别人的两倍，痛苦也是。",mech:"对方晚回三小时，你能在脑子里写完一部悬疑小说。你不是作，是神经系统对分离信号过敏。",high:"热恋期你让对方感到被全然需要，那种炽热很少有人给得起。",warn:"把确认的担子全压在对方身上，问得越多，对方越疲惫，你越慌。",tips:"把需要确认的时刻写下来，先自己回答一遍最坏的结果，多数时候答案没那么可怕。"},
+AVO:{lead:"你把独立刻进了骨子里，亲密来得越猛你退得越稳。",mech:"你用撤退处理冲突，对方收到的不是冷静，是抛弃。你以为自己在保护关系，其实在保护自己。",high:"情绪稳定，从不无理取闹，对方压力再大你也不添乱。",warn:"沉默和消失是你的默认答案，误会往往就长在这里。",tips:"撤退之前说一句话就行，我需要静一静，不是你的问题。这五个字能救回大多数误会。"},
+FEA:{lead:"你同时住着一个想靠近的人和一个想逃跑的人。",mech:"靠近的时候你担心失去自己，疏远的时候你害怕失去对方。",high:"情绪波动在四种类型里最大，也因此你最能理解别人的矛盾。",warn:"先跑为敬的反射弧，不等事情发生就先撤。",tips:"记住一个事实，你的恐慌大多数时候是记忆在响警报，不是现实在发生。跑之前等十分钟，十分钟后再决定。"}};
+const STYLE_TEXT={
+ERO:"你恋爱靠心动驱动，看对眼比什么清单都好用。你的感情浓度高，仪式感和身体语言都是你的母语。风险是心动会退潮，退潮时你容易怀疑自己不爱了。其实爱从激情变成别的样子，不等于消失。",
+LUD:"暧昧期是你的主场，推拉试探让你心跳加速，确定关系反而让你犯困。你的魅力在于有趣和分寸感。风险是你在关系变深的前一刻掉头，错过了所有值得深的关系。游戏玩多了会忘记自己也曾想要一个认真的答案。",
+STO:"你的爱是从朋友感里长出来的，不轰烈但扎实。你不玩心跳，你修信用。风险是你的表达太轻，对方可能在很长时间里都不知道你在意，误会就这样错过。爱要让人接得住，也需要让人看得见。",
+PRG:"你恋爱像在选合伙人，条件、兼容性、未来路径都要对表。你的好处是清醒，很少恋爱脑，也很少踩坑。风险是清单太严会筛掉一些无法量化但珍贵的东西，比如他半夜愿意听你说废话。",
+MAN:"你爱得深也怕得深，情绪像坐过山车。你的在意是真的，炽热是真的，让人喘不过气也是真的。你的雷区是用反复确认来止疼，越确认越上瘾。安全感这笔账，别人补不了你的缺口，得从自己这里入账。",
+AGA:"你的爱意是用行动打字的，对方的冷暖你先于自己感知。你是所有人嘴里的好对象。风险是你把自己放得太低，低到对方以为你不需要被爱。付出要有来有回才叫关系，不然叫慈善。"};
+const COMBOS={
+"SEC|ERO":{name:"双向奔赴的火焰",txt:"你的炽热有处安放，因为你信得住也敢信。",tips:"把心动继续说出口，稳定不等于沉默。"},
+"ANX|MAN":{name:"火焰缠绕",txt:"两台放大器互相对着响，爱得震耳欲聋也累得快。",tips:"约定确认冷却时间，半小时后再发下一条。"},
+"AVO|LUD":{name:"优雅逃逸",txt:"你永远在关系变深前一步离场，姿态好看，遗憾也真。",tips:"这次试着留下来，看看变深之后是什么。"},
+"FEA|AGA":{name:"温柔讨好",txt:"你用付出换安全感，越怕越给，越给越怕。",tips:"练习提一次小小的要求，看看对方接不接得住。"},
+"SEC|STO":{name:"细水长流",txt:"你是最可能把校园恋爱走成一辈子关系的人。",tips:"偶尔制造点意外，水太静会忘记自己也会发光。"},
+"FEA|LUD":{name:"伞兵式恋爱",txt:"空降得快，撤离得更快，落地永远是问题。",tips:"下次撤退前给对方留一句话，别让爱死在失踪里。"}};
+const ATT_SHORT={SEC:"你的信任有据可依",ANX:"你爱得用力也怕得用力",AVO:"你把心事锁得很深",FEA:"你一边靠近一边撤离"};
+const STYLE_SHORT={ERO:"心动的火药味",LUD:"推拉的乐趣",STO:"细水长流的笃定",PRG:"清单里的未来",MAN:"患得患失的确认",AGA:"无条件的付出"};
+const ATT_ADVICE={SEC:"别把稳定当成理所当然，把在意说出口。",ANX:"焦虑上来的时候先核对事实，再决定说什么。",AVO:"下一次想撤退的时候，先留一句话再走。",FEA:"别让恐慌替你做决定，给自己十分钟。"};
+const METAPHORS=["一封寄出去又想追回的信","一场不敢谢幕的演出","一杯加了冰的烈酒","一场没有地图的旅行","一盏调到最暗的灯","一次借口太多的奔赴"];
+const STATUS_CN={single:"单身",flirt:"暧昧中",dating:"恋爱中"};
+/* ================= 状态 ================= */
+const S={screen:"cover",name:"",status:"",card:null,qi:0,answers:[],done:false};
+const KEY="lgjd_state_v1";
+function save(){try{localStorage.setItem(KEY,JSON.stringify({name:S.name,status:S.status,card:S.card,qi:S.qi,answers:S.answers,done:S.done}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||"null");if(d&&d.answers){Object.assign(S,d)}}catch(e){}}
+function reset(){try{localStorage.removeItem(KEY)}catch(e){}S.screen="cover";S.name="";S.status="";S.card=null;S.qi=0;S.answers=[];S.done=false}
+/* ================= 工具 ================= */
+const stage=document.getElementById("stage");
+const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function mount(html){stage.innerHTML=html;stage.scrollTop=0;window.scrollTo(0,0)}
+function backSVG(){let pts=[];for(let i=0;i<16;i++){const a=i*Math.PI/8-Math.PI/2;const r=i%2===0?34:13;pts.push((60+r*Math.cos(a)).toFixed(1)+","+(90+r*Math.sin(a)).toFixed(1))}
+ return `<svg viewBox="0 0 120 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+ <rect x="1" y="1" width="118" height="178" rx="7" fill="none" stroke="rgba(222,196,148,.5)" stroke-width="1"/>
+ <rect x="7" y="7" width="106" height="166" rx="4" fill="none" stroke="rgba(222,196,148,.18)" stroke-width="1"/>
+ <circle cx="60" cy="90" r="42" fill="none" stroke="rgba(222,196,148,.35)" stroke-width=".8"/>
+ <circle cx="60" cy="90" r="47" fill="none" stroke="rgba(222,196,148,.14)" stroke-width=".7"/>
+ <polygon points="${pts.join(" ")}" fill="none" stroke="rgba(222,196,148,.55)" stroke-width=".9"/>
+ <circle cx="60" cy="90" r="2.4" fill="rgba(222,196,148,.8)"/></svg>`}
+function cardHTML(cls,inner){return `<div class="card3d ${cls||""}"><div class="tcard">${inner}</div></div>`}
+const cardBackHTML=`<div class="tframe">${backSVG()}</div>`;
+function cardFrontHTML(c){return `<div class="card-front"><div class="rn">${c.rn}</div><div class="nm">${c.name}</div><div class="dot"></div><div class="th">${c.theme}</div></div>`}
+function stars(){const box=document.getElementById("stars");let h="";for(let i=0;i<38;i++){const s=Math.random()*1.6+0.8;
+ h+=`<span class="star" style="left:${(Math.random()*100).toFixed(1)}%;top:${(Math.random()*100).toFixed(1)}%;width:${s}px;height:${s}px;--d:${(4+Math.random()*4).toFixed(1)}s;--dl:${(Math.random()*5).toFixed(1)}s;--o1:${(0.06+Math.random()*0.12).toFixed(2)};--o2:${(0.3+Math.random()*0.4).toFixed(2)}"></span>`}
+ box.innerHTML=h}
+/* ================= 屏：封面 ================= */
+function renderCover(){
+ mount(`<div class="screen cover">
+  <div class="kicker">LOVE GENE TAROT</div>
+  <h1>恋爱基因解码</h1>
+  <p class="sub">四十二个恋爱情境，一张牌灵<br>一份只属于你的剧本</p>
+  <div class="deck">
+   ${cardHTML("p1",cardBackHTML)}${cardHTML("p2",cardBackHTML)}${cardHTML("p3",cardBackHTML)}
+  </div>
+  <div class="actions">
+   <button class="btn" id="go">翻开牌堆</button>
+   ${S.done?`<button class="btn ghost" id="again-view">查看上次的剧本</button>`:""}
+  </div>
+  <p class="meta" style="margin-top:26px">依恋理论 × 爱情态度量表改编 · 约 8 分钟 · 手机端体验</p>
+ </div>`);
+ document.getElementById("go").onclick=()=>{S.screen="name";renderName()};
+ const v=document.getElementById("again-view");if(v)v.onclick=()=>renderResult(true);
+}
+/* ================= 屏：设置 ================= */
+function renderName(){
+ mount(`<div class="screen setup-step">
+  <span class="kicker">序 章 · 一 之 三</span>
+  <h2>起个代号</h2>
+  <p class="hint">它会出现在结果页的牌灵剧本上。<br>写谁都行，反正牌不会说出去。</p>
+  <input type="text" id="nm" maxlength="12" placeholder="写在牌背上的名字" autocomplete="off">
+  <div style="height:26px"></div>
+  <button class="btn" id="nx">落 笔</button>
+  <div style="height:14px"></div>
+  <a class="link" href="javascript:void(0)" id="skip">匿名进入，叫我无名旅人</a>
+ </div>`);
+ const nx=()=>{S.name=(document.getElementById("nm").value||"").trim().slice(0,12)||"无名旅人";S.screen="status";save();renderStatus()};
+ document.getElementById("nx").onclick=nx;
+ document.getElementById("skip").onclick=nx;
+ const inp=document.getElementById("nm");inp.value=S.name==="无名旅人"?"":S.name;
+ inp.addEventListener("keydown",e=>{if(e.key==="Enter")nx()});
+ inp.focus();
+}
+function renderStatus(){
+ mount(`<div class="screen setup-step">
+  <span class="kicker">序 章 · 二 之 三</span>
+  <h2>此刻的状态</h2>
+  <p class="hint">这一项不参与计分，只决定每个篇章怎么跟你说话。</p>
+  <div class="status-grid">
+   <button class="status-item" data-s="single"><span class="nm">单 身</span><span class="de">答案给想象里的那个人</span></button>
+   <button class="status-item" data-s="flirt"><span class="nm">暧昧中</span><span class="de">那个人让你有点失眠</span></button>
+   <button class="status-item" data-s="dating"><span class="nm">恋爱中</span><span class="de">心里有个具体的人</span></button>
+  </div>
+ </div>`);
+ document.querySelectorAll(".status-item").forEach(b=>b.onclick=()=>{S.status=b.dataset.s;S.screen="draw";save();renderDraw()});
+}
+/* ================= 屏：抽牌 ================= */
+function renderDraw(){
+ const pick=[...CARDS].sort(()=>Math.random()-.5).slice(0,7);
+ mount(`<div class="screen">
+  <div class="setup-step" style="text-align:left">
+   <span class="kicker">序 章 · 三 之 三</span>
+   <h2>抽一张牌灵</h2>
+   <p class="hint">七张牌背，选一张顺眼的。它决定这一程用什么口吻跟你说话，不参与计分，牌只换皮，不改分。</p>
+  </div>
+  <div class="fan" id="fan">
+   ${pick.map((c,i)=>cardHTML("",cardBackHTML).replace('class="card3d "',`class="card3d" data-i="${i}" style="transform:translateX(${(i-3)*34}px) rotate(${(-24+i*8).toFixed(0)}deg) translateY(${(i===0||i===6)?14:(i===1||i===5)?2:0}px);z-index:${i<4?i:7-i}"`)).join("")}
+  </div>
+  <p class="fan-tip">轻 点 选 牌</p>
+  <div id="reveal-zone"></div>
+ </div>`);
+ document.querySelectorAll("#fan .card3d").forEach(el=>{
+  el.onclick=()=>{
+   const c=pick[+el.dataset.i];S.card=c.id;save();
+   const fan=document.getElementById("fan");fan.classList.add("fade");
+   el.classList.add("chosen");
+   document.querySelector(".fan-tip").style.opacity="0";
+   setTimeout(()=>{showReveal(c)},480);
+  };
+ });
+}
+function showReveal(c){
+ const zone=document.getElementById("reveal-zone");
+ zone.innerHTML=`<div class="screen">
+  <div class="flip-scene" id="fs"><div class="flip-inner">
+   <div class="flip-face back"><div class="tcard"><div class="tframe">${backSVG()}</div></div></div>
+   <div class="flip-face front">${cardFrontHTML(c)}</div>
+  </div></div>
+  <div class="card-reveal" style="opacity:0">
+   <p class="txt">${esc(c.open)}</p>
+   <button class="btn" id="begin">带 牌 入 局</button>
+  </div>
+ </div>`;
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{document.getElementById("fs").classList.add("flipped")}));
+ setTimeout(()=>{const cr=zone.querySelector(".card-reveal");if(cr)cr.style.opacity="1"},650);
+ document.getElementById("begin").onclick=()=>{S.qi=0;S.answers=new Array(QUESTIONS.length).fill(null);save();renderChapterIntro(0)};
+}
+/* ================= 屏：章引言 ================= */
+function renderChapterIntro(ci){
+ const ch=CHAPTERS[ci];
+ const stLine=ch.st[S.status]||"";
+ mount(`<div class="screen chintro">
+  <span class="kicker">第 ${["一","二","三","四","五"][ci]} 章</span>
+  <div class="big">${ch.num}</div>
+  <h2>${ch.card} · ${ch.title}</h2>
+  <p class="lead">${ch.intro}</p>
+  <p class="stline">${stLine}</p>
+  <p class="meta">本 章 八 题 · 约一分半</p>
+  <button class="btn" id="goq">入 章</button>
+ </div>`);
+ document.getElementById("goq").onclick=()=>{S.screen="quiz";renderQuestion()};
+}
+/* ================= 屏：答题 ================= */
+function chapterOf(i){return QUESTIONS[i].ch}
+function renderQuestion(){
+ const i=S.qi,q=QUESTIONS[i],ch=CHAPTERS[q.ch];
+ mount(`<div class="screen">
+  <div class="qhead"><span class="ch">${ch.num} · ${ch.title}</span><span class="ct">${String(i+1).padStart(2,"0")} / ${QUESTIONS.length}</span></div>
+  <div class="pbar"><i style="width:${(i/QUESTIONS.length*100).toFixed(1)}%"></i></div>
+  <div class="chdots">${CHAPTERS.map((c,k)=>`<i class="${k<q.ch?"done":k===q.ch?"cur":""}"></i>`).join("")}</div>
+  <div class="qcard">
+   <p class="qscene">${esc(q.scene)}</p>
+   <p class="qtext">${esc(q.text)}</p>
+  </div>
+  <div class="opts">
+   ${q.opts.map((o,k)=>`<button class="opt ${S.answers[i]===k?"sel":""}" data-k="${k}" style="animation-delay:${k*55}ms">
+     <span class="idx">${"ABCD"[k]}</span><span class="tx">${esc(o[0])}</span></button>`).join("")}
+  </div>
+  <div class="qfoot">
+   ${i>0?`<a class="link" href="javascript:void(0)" id="prev">上一题</a>`:`<span></span>`}
+   <span style="color:var(--dim);font-size:11px;letter-spacing:.2em">凭第一反应，别想太久</span>
+  </div>
+ </div>`);
+ const lock={v:false};
+ document.querySelectorAll(".opt").forEach(b=>{
+  b.onclick=()=>{
+   if(lock.v)return;lock.v=true;
+   document.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));
+   b.classList.add("sel");
+   S.answers[i]=+b.dataset.k;
+   const next=S.answers.findIndex((v,k)=>k>=i&&v===null);
+   const nq=next===-1?QUESTIONS.length:next;
+   S.qi=nq;save();
+   setTimeout(()=>{
+    if(nq>=QUESTIONS.length){S.screen="calc";renderCalc()}
+    else if(chapterOf(nq)>q.ch){renderChapterIntro(chapterOf(nq))}
+    else renderQuestion();
+   },340);
+  };
+ });
+ const p=document.getElementById("prev");if(p)p.onclick=()=>{
+  let j=i-1;S.answers[j]=null;S.qi=j;save();
+  renderQuestion();
+ };
+}
+/* ================= 屏：计算过场 ================= */
+function renderCalc(){
+ mount(`<div class="screen calc">
+  <div class="minifan">
+   ${cardHTML("",cardBackHTML).replace('class="card3d "','class="card3d" style="transform:rotate(-14deg)"')}
+   ${cardHTML("",cardBackHTML).replace('class="card3d "','class="card3d" style="transform:translateY(-10px);z-index:2"')}
+   ${cardHTML("",cardBackHTML).replace('class="card3d "','class="card3d" style="transform:rotate(14deg)"')}
+  </div>
+  <p class="line" id="cl"></p>
+ </div>`);
+ const lines=["正在整理你的四十二个反应","对照量表核对计分","编织你的牌灵剧本"];
+ let k=0;const el=document.getElementById("cl");
+ el.textContent=lines[0];
+ const t=setInterval(()=>{k++;if(k<lines.length){el.style.animation="none";void el.offsetWidth;el.style.animation="";el.textContent=lines[k]}else{clearInterval(t);S.done=true;S.screen="result";save();renderResult()}},900);
+}
+/* ================= 计分 ================= */
+function score(){
+ const att={SEC:0,ANX:0,AVO:0,FEA:0},sty={ERO:0,LUD:0,STO:0,PRG:0,MAN:0,AGA:0};
+ let lie=0;
+ QUESTIONS.forEach((q,i)=>{
+  const a=S.answers[i];if(a===null||a===undefined)return;
+  const tag=q.opts[a][1];
+  if(tag==="LIE"){lie++;return}
+  if(att[tag]!==undefined)att[tag]++;
+  else if(sty[tag]!==undefined)sty[tag]++;
+ });
+ const styRate={};Object.keys(sty).forEach(k=>{styRate[k]=sty[k]/STYLE_INFO[k].rate});
+ const attRate={};Object.keys(att).forEach(k=>{attRate[k]=att[k]/ATT_INFO[k].rate});
+ const attRank=Object.keys(att).sort((a,b)=>att[b]-att[a]||ATT_INFO[b].rate-ATT_INFO[a].rate);
+ const styRank=Object.keys(sty).sort((a,b)=>styRate[b]-styRate[a]||STYLE_INFO[b].rate-STYLE_INFO[a].rate);
+ const anx=Math.round((att.ANX+att.FEA)/40*100),avo=Math.round((att.AVO+att.FEA)/40*100);
+ const brain=Math.round((styRate.AGA*0.4+styRate.MAN*0.35+attRate.ANX*0.25)*100);
+ const threshold=Math.round(((1-styRate.ERO)*0.6+attRate.AVO*0.25+styRate.PRG*0.15)*100);
+ return {att,attRate,sty,styRate,attRank,styRank,anx,avo,lie,brain,threshold};
+}
+function comboInsight(a,s){
+ const key=a+"|"+s;
+ if(COMBOS[key])return COMBOS[key];
+ let h=0;for(const c of key)h=(h*31+c.charCodeAt(0))>>>0;
+ return {name:"",txt:`${ATT_SHORT[a]}，遇上${STYLE_SHORT[s]}。你恋爱像${METAPHORS[h%METAPHORS.length]}。`,tips:ATT_ADVICE[a]};
+}
+function tier(v,hi,mid,low){return v>=65?hi:v>=40?mid:low}
+/* ================= 图表 ================= */
+function radarSVG(sc){
+ const cx=150,cy=142,R=102;
+ const axes=[...Object.keys(ATT_INFO),...Object.keys(STYLE_INFO)];
+ const rates={...sc.attRate,...sc.styRate};
+ const pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/axes.length;return [cx+r*Math.cos(a),cy+r*Math.sin(a)]};
+ let grid="";
+ [0.25,0.5,0.75,1].forEach(f=>{
+  grid+=`<polygon points="${axes.map((_,i)=>pt(i,R*f).map(v=>v.toFixed(1)).join(",")).join(" ")}" fill="none" stroke="rgba(222,196,148,${f===1?0.3:0.12})" stroke-width=".7"/>`;
+ });
+ let spokes="",labels="";
+ axes.forEach((k,i)=>{
+  const [x,y]=pt(i,R);spokes+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(222,196,148,.12)" stroke-width=".7"/>`;
+  const [lx,ly]=pt(i,R+17);const isAtt=i<4;
+  const cn=(ATT_INFO[k]||STYLE_INFO[k]).cn.replace("型","");
+  const anchor=Math.abs(lx-cx)<10?"middle":lx>cx?"start":"end";
+  labels+=`<text x="${lx.toFixed(1)}" y="${(ly+4).toFixed(1)}" font-size="10.5" letter-spacing="2" fill="${isAtt?"#D9BC8C":"#C87B8A"}" text-anchor="${anchor}" font-family="Noto Serif SC,serif">${cn}</text>`;
+ });
+ const poly=axes.map((k,i)=>pt(i,R*Math.max(rates[k],0.05)).map(v=>v.toFixed(1)).join(",")).join(" ");
+ return `<svg viewBox="0 0 300 284" style="width:100%;display:block" aria-label="十维得分率雷达图">
+  ${grid}${spokes}
+  <polygon id="rpoly" points="${poly}" fill="rgba(217,188,140,.13)" stroke="#D9BC8C" stroke-width="1.2" style="transform-origin:150px 142px;transform:scale(.5);opacity:0;transition:transform 1s var(--ease) .15s,opacity .6s ease .15s"/>
+  ${axes.map((k,i)=>{const [x,y]=pt(i,R*Math.max(rates[k],0.05));return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.2" fill="${i<4?"#EDD7A8":"#C87B8A"}" opacity="0" style="transition:opacity .4s ease .9s" class="rdot"/>`}).join("")}
+  ${labels}</svg>`;
+}
+function coordSVG(sc){
+ const W=280,H=280,M=34;
+ const x=M+(W-2*M)*sc.avo/100, y=(H-M)-(H-2*M)*sc.anx/100;
+ const midX=W/2,midY=H/2;
+ return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block" aria-label="依恋坐标图">
+  <rect x="${M}" y="${M}" width="${W-2*M}" height="${H-2*M}" fill="none" stroke="rgba(222,196,148,.25)" stroke-width=".8"/>
+  <line x1="${midX}" y1="${M}" x2="${midX}" y2="${H-M}" stroke="rgba(222,196,148,.12)" stroke-width=".7" stroke-dasharray="3 4"/>
+  <line x1="${M}" y1="${midY}" x2="${W-M}" y2="${midY}" stroke="rgba(222,196,148,.12)" stroke-width=".7" stroke-dasharray="3 4"/>
+  <text x="${M+8}" y="${M+16}" font-size="10" fill="#B3AA99" letter-spacing="2" font-family="Noto Serif SC,serif">焦虑型</text>
+  <text x="${W-M-8}" y="${M+16}" font-size="10" fill="#B3AA99" letter-spacing="2" text-anchor="end" font-family="Noto Serif SC,serif">恐惧型</text>
+  <text x="${M+8}" y="${H-M-8}" font-size="10" fill="#B3AA99" letter-spacing="2" font-family="Noto Serif SC,serif">安全型</text>
+  <text x="${W-M-8}" y="${H-M-8}" font-size="10" fill="#B3AA99" letter-spacing="2" text-anchor="end" font-family="Noto Serif SC,serif">回避型</text>
+  <text x="${midX}" y="${M-12}" font-size="9.5" fill="#7D7490" text-anchor="middle" letter-spacing="3">焦 虑 ↑</text>
+  <text x="${W-M+2}" y="${midY+3}" font-size="9.5" fill="#7D7490" letter-spacing="2" transform="rotate(90 ${W-M+2} ${midY+3})" >回 避 →</text>
+  <circle cx="${x}" cy="${y}" r="12" fill="rgba(200,123,138,.14)" id="cd-halo" style="transform-origin:${x}px ${y}px;transform:scale(0);transition:transform .8s var(--ease) .5s"/>
+  <circle cx="${x}" cy="${y}" r="4.5" fill="#C87B8A" id="cd" style="transform-origin:${x}px ${y}px;transform:scale(0);transition:transform .8s var(--ease) .35s"/>
+ </svg>`;
+}
+/* ================= 屏：结果 ================= */
+function renderResult(isReview){
+ const sc=score();
+ const card=CARDS.find(c=>c.id===S.card)||CARDS[0];
+ const a=sc.attRank[0],s=sc.styRank[0],s2=sc.styRank[1];
+ const combo=comboInsight(a,s);
+ const isCustom=!!COMBOS[a+"|"+s];
+ const attTie=sc.att[sc.attRank[0]]===sc.att[sc.attRank[1]];
+ const attCn=ATT_INFO[a].cn,styCn=STYLE_INFO[s].cn,sty2Cn=STYLE_INFO[s2].cn;
+ const archetype=isCustom?combo.name:`${attCn} × ${styCn}`;
+ const A=ATT_TEXT[a];
+ const brainTier=tier(sc.brain,"骨灰级恋爱脑","理性与恋爱共存","清醒本醒");
+ const thTier=tier(sc.threshold,"高岭之花","有谱就动","一点就着");
+ mount(`<div class="screen">
+  <div class="r-hero">
+   <span class="kicker">恋爱基因解码 · 你的牌灵剧本</span>
+   <div class="arche">${archetype}</div>
+   <div class="pair">${attCn} × ${styCn}${isCustom?"":" · "+sty2Cn+"为副风格"}</div>
+   <div class="r-chips">
+    <span class="chip">代号 <b>${esc(S.name||"无名旅人")}</b></span>
+    <span class="chip"><b>${STATUS_CN[S.status]||"—"}</b></span>
+    <span class="chip">牌灵 <b>${card.name} ${card.rn}</b></span>
+   </div>
+   ${sc.lie>=2?`<div class="lie-note">检测到部分答案可能存在美化倾向。这份剧本依然成立，只是建议你把它读两遍，第一遍读它，第二遍读你自己。</div>`:""}
+  </div>
+
+  <section class="r-sec">
+   <div class="head"><span class="tt">依恋坐标</span><span class="en">ATTACHMENT MAP</span></div>
+   <div class="chart-card">${coordSVG(sc)}</div>
+   ${attTie?`<div style="color:var(--dim);font-size:12px;letter-spacing:.06em;margin-top:10px;line-height:1.9">你的两类依恋得分持平，落点存在临界。下面的解读按更高的一方展开，另一半也值得对照看。</div>`:""}
+  </section>
+
+  <section class="r-sec">
+   <div class="head"><span class="tt">十维得分率</span><span class="en">GENE RADAR</span></div>
+   <div class="chart-card">
+    <div class="legend"><span><i style="background:#EDD7A8"></i>依恋四型</span><span><i style="background:#C87B8A"></i>风格六型</span></div>
+    ${radarSVG(sc)}
+   </div>
+  </section>
+
+  <section class="r-sec">
+   <div class="head"><span class="tt">${attCn}</span><span class="en">ATTACHMENT</span></div>
+   <div class="r-para"><div class="lb">机 制</div><p>${A.lead}${A.mech}</p></div>
+   <div class="r-para"><div class="lb">高 光</div><p>${A.high}</p></div>
+   <div class="r-para"><div class="lb">雷 区</div><p>${A.warn}</p></div>
+   <div class="r-para"><div class="lb">处 方</div><p>${A.tips}</p></div>
+  </section>
+
+  <section class="r-sec">
+   <div class="head"><span class="tt">${styCn}</span><span class="en">LOVE STYLE</span></div>
+   <div class="r-para"><p>${STYLE_TEXT[s]}</p></div>
+   <div class="r-para"><div class="lb">副风格 · ${sty2Cn}</div><p>${STYLE_TEXT[s2]}</p></div>
+  </section>
+
+  <section class="r-sec">
+   <div class="head"><span class="tt">交叉洞察</span><span class="en">CHEMISTRY</span></div>
+   ${isCustom?`<div class="combo-name">${combo.name}<em>CUSTOM PROTOTYPE</em></div>`:""}
+   <div class="r-para"><p>${combo.txt}</p></div>
+   <div class="r-para"><div class="lb">处 方</div><p>${combo.tips}</p></div>
+  </section>
+
+  <section class="r-sec">
+   <div class="head"><span class="tt">彩蛋分数</span><span class="en">BONUS</span></div>
+   <div class="eggs">
+    <div class="egg">
+     <div class="row1"><span class="nm">恋爱脑指数</span><span class="v"><span id="ev1">0</span><small>/ 100</small></span></div>
+     <div class="track"><i id="et1" data-w="${sc.brain}"></i></div>
+     <div class="tier">判定 · <b>${brainTier}</b>。分越高，越容易为了爱把理智寄存。</div>
+    </div>
+    <div class="egg">
+     <div class="row1"><span class="nm">心动阈值</span><span class="v"><span id="ev2">0</span><small>/ 100</small></span></div>
+     <div class="track"><i id="et2" data-w="${sc.threshold}"></i></div>
+     <div class="tier">判定 · <b>${thTier}</b>。${sc.threshold>=65?"想点亮你，需要三重证据加一个恰好的时机。":"你的心动有谱可循，别把谱藏太深。"}</div>
+    </div>
+   </div>
+   <p class="egg-note">两项为彩蛋指标，不参与主报告判定</p>
+  </section>
+
+  <section class="r-sec">
+   <div class="head"><span class="tt">牌灵剧本</span><span class="en">ORACLE</span></div>
+   <div class="oracle">
+    <div class="onm">${card.name}牌 · ${card.rn} · ${card.theme}</div>
+    <p class="otx">${esc(card.open)}</p>
+    <p class="ocls">${esc(card.close)}</p>
+   </div>
+  </section>
+
+  <p class="ethic">本测评基于成人依恋理论（ECR-R）与爱情态度量表（LAS）情境化改编<br>用于自我探索与娱乐，不构成任何临床诊断或关系建议</p>
+
+  <div class="r-actions">
+   <button class="btn" id="again">重新洗牌，再测一次</button>
+  </div>
+  <p class="share-hint">长按屏幕截取这一页，发给那个你此刻想到的人</p>
+ </div>`);
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const rp=document.getElementById("rpoly");if(rp){rp.style.transform="scale(1)";rp.style.opacity="1"}
+  document.querySelectorAll(".rdot").forEach(d=>d.style.opacity="1");
+  document.querySelectorAll(".track i").forEach(t=>{t.style.width=t.dataset.w+"%"});
+  const anim=(id,target)=>{const el=document.getElementById(id);if(!el)return;const t0=performance.now(),dur=1100;
+   const step=t=>{const p=Math.min((t-t0)/dur,1);el.textContent=Math.round(target*(1-Math.pow(1-p,4)));if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)};
+  anim("ev1",sc.brain);anim("ev2",sc.threshold);
+ }));
+ document.getElementById("again").onclick=()=>{reset();renderCover()};
+}
+/* ================= 启动 ================= */
+load();stars();
+if(S.done&&S.answers.filter(v=>v!==null).length===QUESTIONS.length){
+ renderCover();
+}else if(S.qi>0&&S.answers.some(v=>v!==null)){
+ const firstOpen=S.answers.findIndex(v=>v===null);
+ S.qi=firstOpen===-1?QUESTIONS.length:firstOpen;
+ if(firstOpen===-1){S.done=true;renderResult()}else{
+  renderCover();
+  setTimeout(()=>{const c=document.getElementById("stage");const note=document.createElement("div");
+   note.style.cssText="position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 20px);z-index:9;background:rgba(30,25,48,.92);border:1px solid rgba(222,196,148,.3);color:#F1EADB;font-size:12px;letter-spacing:.18em;padding:10px 18px;border-radius:2px;transition:opacity .5s";
+   note.textContent="进度已恢复，从第 "+(S.qi+1)+" 题继续";
+   document.body.appendChild(note);
+   const go=document.getElementById("go");if(go)go.onclick=()=>{renderQuestion()};
+   setTimeout(()=>{note.style.opacity="0";setTimeout(()=>note.remove(),600)},2600);
+  },60);
+ }
+}else{renderCover()}
+</script>
+</body>
+</html>
